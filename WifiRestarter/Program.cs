@@ -14,36 +14,38 @@ namespace WifiRestarter
     class Program
     {
         public const string RestartScript = "Disable-NetAdapter –Name \"Wi-Fi\" –Confirm:$False; Enable-NetAdapter -Name \"Wi-Fi\" -Confirm:$False";
-        public const string GoogleCom = "www.google.com";
-        public const int pingTimeOut = 1000;
-        public const int DelaySeconds = 70;
-        private HttpClient client;
+        public const int DelaySeconds = 30;
+        private PowerShellExecutor _cmd;
         private Program()
         {
-            client = new HttpClient();
+            //wire powerShell to write console
+             _cmd = new PowerShellExecutor()
+                        .WhenOutputLog(LogPSObject)
+                        .WhenError(inputObject =>
+                        {
+                            LogPSObject(inputObject);
+                            throw new Exception("Something went wrong" + inputObject.BaseObject);
+                        });
         }
 
         public async Task Run()
-        {
-            var waitTask = Task.Delay(new TimeSpan(0, 0, DelaySeconds));
-            var cmd = new PowerShellExecutor()
-                    .WhenOutputLog(LogPSObject)
-                    .WhenError(inputObject =>
-                    {
-                        LogPSObject(inputObject);
-                        throw new Exception("Something went wrong" + inputObject.BaseObject);
-                    });
-
+        {   
             while (true)
             {
-                if (await IsInternetDown())
+                if (InternetStatus.IsDown())
                 {
-                    Console.Write("Restarting...");
-                    cmd.Execute(RestartScript);
+                    Restart();
                 }
-                await waitTask;
+                await Task.Delay(new TimeSpan(0, 0, DelaySeconds));
             }
+            
         }
+
+        public void Restart()
+        {
+            _cmd.Execute(RestartScript);
+        }
+
 
 
         public static void Main(string[] args)
@@ -58,7 +60,7 @@ namespace WifiRestarter
                 Console.Out.WriteLine("Error was encountered " + e);
                 Console.Out.Write(e.StackTrace);
                 Console.Write("Press any key to Exit");
-                var res = Console.ReadKey();
+                Console.ReadKey();
             }
         }
         
@@ -67,20 +69,6 @@ namespace WifiRestarter
             Console.Write("PowerShell::" + obj.BaseObject.ToString());
         }
 
-        public async Task<bool> IsInternetDown()
-        {
-            try
-            {
-                Ping myPing = new Ping();
-                byte[] buffer = new byte[32];
-                PingOptions pingOptions = new PingOptions();
-                PingReply reply = myPing.Send(GoogleCom, pingTimeOut, buffer, pingOptions);
-                return (reply.Status != IPStatus.Success);
-            }
-            catch (PingException)
-            {
-                return true;
-            }
-        }        
+              
     }
 }
