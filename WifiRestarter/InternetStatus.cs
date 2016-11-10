@@ -15,7 +15,7 @@ namespace WifiRestarter
 
         public static  bool IsDown()
         {
-            ConsoleExtensions.WriteInPreviousLine("Checking Internet....");            
+            ConsoleExtensions.OverwriteLine("Checking Internet....");            
             try
             {
                 Ping myPing = new Ping();
@@ -23,12 +23,20 @@ namespace WifiRestarter
                 PingOptions pingOptions = new PingOptions();
                 PingReply reply = myPing.Send(GoogleCom, pingTimeOut, buffer, pingOptions);
                 var internetDown = (reply.Status != IPStatus.Success);
-                ConsoleExtensions.WriteInPreviousLine("Internet is "  +(internetDown?"down":"up")+"  at + " + DateTime.Now);
+                if (internetDown)
+                {
+                    ConsoleExtensions.WriteLine("Internet is down at " + DateTime.Now);
+                }
+                else
+                {
+                    ConsoleExtensions.OverwriteLine("Internet is up at" + DateTime.Now);
+                }
+                
                 return internetDown;
             }
             catch (PingException)
             {
-                ConsoleExtensions.WriteInPreviousLine("Internet is down  at + " + DateTime.Now);
+                ConsoleExtensions.WriteLine("Internet is down at " + DateTime.Now);
                 return true;
             }
         }

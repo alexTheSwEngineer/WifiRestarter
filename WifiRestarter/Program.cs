@@ -49,9 +49,9 @@ namespace WifiRestarter
 
         public void Restart()
         {
-            ConsoleExtensions.WriteInPreviousLine("Internet down restarting...");            
+            ConsoleExtensions.OverwriteLine("Restarting... at "+DateTime.Now);            
             _cmd.Execute(RestartScript);
-            ConsoleExtensions.WriteInPreviousLine("Restarted successfully at " + DateTime.Now);
+            ConsoleExtensions.WriteLine("Restarted successfully at " + DateTime.Now);
         }
 
 

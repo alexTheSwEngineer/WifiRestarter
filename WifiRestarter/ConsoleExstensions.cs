@@ -24,10 +24,17 @@ namespace WifiRestarter
             Console.SetCursorPosition(0, currentLineCursor);
         }
 
-        public static void WriteInPreviousLine(string line)
+        public static void OverwriteLine(string line)
         {
             ClearPreviousLine();
             Console.WriteLine(line);
+        }
+
+        public static void WriteLine(string line)
+        {   
+            Console.WriteLine(line);
+            Console.WriteLine();
+
         }
     }
 }
