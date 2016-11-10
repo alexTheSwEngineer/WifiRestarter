@@ -13,7 +13,7 @@ namespace WifiRestarter
 {
     class Program
     {
-        public const string RestartScript = "Disable-NetAdapter –Name \"Wi-Fi\" –Confirm:$False; Enable-NetAdapter -Name \"Wi-Fi\" -Confirm:$False";
+        public const string RestartScript = "Disable-NetAdapter –Name \"Wi-Fi\" –Confirm:$False; Enable-NetAdapter -Name \"Wi-Fi\" ";
         public const int DelaySeconds = 30;
         private PowerShellExecutor _cmd;
         private Program()
@@ -29,21 +29,29 @@ namespace WifiRestarter
         }
 
         public async Task Run()
-        {   
-            while (true)
+        {
+            Console.WriteLine();
+            for (int consecutiveRestarts = 0; consecutiveRestarts < 4;)
             {
                 if (InternetStatus.IsDown())
                 {
                     Restart();
+                    consecutiveRestarts++;
+                }
+                else
+                {
+                    consecutiveRestarts = 0;
                 }
                 await Task.Delay(new TimeSpan(0, 0, DelaySeconds));
-            }
+            } 
             
         }
 
         public void Restart()
         {
+            ConsoleExtensions.WriteInPreviousLine("Internet down restarting...");            
             _cmd.Execute(RestartScript);
+            ConsoleExtensions.WriteInPreviousLine("Restarted successfully at " + DateTime.Now);
         }
 
 
