@@ -16,16 +16,19 @@ namespace WifiRestarter
         public const string RestartScript = "Disable-NetAdapter –Name \"Wi-Fi\" –Confirm:$False; Enable-NetAdapter -Name \"Wi-Fi\" ";
         public const int DelaySeconds = 30;
         private PowerShellExecutor _cmd;
+        private ActionLogger _actionLogger;
+        private ILogger _logger { get { return _actionLogger.Logger; } }
         private Program()
         {
             //wire powerShell to write console
-             _cmd = new PowerShellExecutor()
-                        .WhenOutputLog(LogPSObject)
-                        .WhenError(inputObject =>
-                        {
-                            LogPSObject(inputObject);
-                            throw new Exception("Something went wrong" + inputObject.BaseObject);
-                        });
+            _actionLogger = new ActionLogger(new ConsoleLogger());
+            _cmd = new PowerShellExecutor()
+                   .WhenOutputLog(LogPSObject)
+                   .WhenError(inputObject =>
+                   {
+                       LogPSObject(inputObject);
+                       throw new Exception("Something went wrong in the script " + inputObject.BaseObject);
+                   });
         }
 
         public async Task Run()
@@ -33,9 +36,11 @@ namespace WifiRestarter
             Console.WriteLine();
             for (int consecutiveRestarts = 0; consecutiveRestarts < 4;)
             {
-                if (InternetStatus.IsDown())
+                var isInternetDown = _actionLogger.Log(InternetStatus.IsDown);
+                if (isInternetDown)
                 {
-                    Restart();
+                    _actionLogger.Log(Restart);
+                    _logger.Trace("Internet down. Wifi was restarted ");
                     consecutiveRestarts++;
                 }
                 else
@@ -44,16 +49,16 @@ namespace WifiRestarter
                 }
                 await Task.Delay(new TimeSpan(0, 0, DelaySeconds));
             }
-            ConsoleExtensions.WriteLine("Maximum number of restarts. Press any key to exit");
+
+
+            _logger.Trace("Maximum number of restarts exceeded. Press any key to exit");
             Console.ReadKey();
             
         }
 
         public void Restart()
-        {
-            ConsoleExtensions.OverwriteLine("Restarting... at "+DateTime.Now);            
+        {      
             _cmd.Execute(RestartScript);
-            ConsoleExtensions.WriteLine("Restarted successfully at " + DateTime.Now);
         }
 
 
@@ -76,7 +81,7 @@ namespace WifiRestarter
         
         public void LogPSObject(PSObject obj)
         {
-            Console.Write("PowerShell::" + obj.BaseObject.ToString());
+            _logger.Trace("PowerShell::" + obj.BaseObject.ToString());
         }
 
               

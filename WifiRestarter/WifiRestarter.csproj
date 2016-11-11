@@ -59,8 +59,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConsoleExstensions.cs" />
+    <Compile Include="ConsoleLogger.cs" />
+    <Compile Include="ILogger.cs" />
     <Compile Include="InternetStatus.cs" />
+    <Compile Include="LoggedExecutor.cs" />
     <Compile Include="PowerShellWrapper.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
