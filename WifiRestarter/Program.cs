@@ -43,7 +43,9 @@ namespace WifiRestarter
                     consecutiveRestarts = 0;
                 }
                 await Task.Delay(new TimeSpan(0, 0, DelaySeconds));
-            } 
+            }
+            ConsoleExtensions.WriteLine("Maximum number of restarts. Press any key to exit");
+            Console.ReadKey();
             
         }
 
