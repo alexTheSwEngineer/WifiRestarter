@@ -59,12 +59,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConsoleLogger.cs" />
-    <Compile Include="ILogger.cs" />
-    <Compile Include="InternetStatus.cs" />
-    <Compile Include="LoggedExecutor.cs" />
-    <Compile Include="PowerShellWrapper.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="Logging\ConsoleLogger.cs" />
+    <Compile Include="Logging\ILogger.cs" />
+    <Compile Include="Program\InternetStatus.cs" />
+    <Compile Include="Logging\LoggedExecutor.cs" />
+    <Compile Include="Program\PowerShellWrapper.cs" />
+    <Compile Include="Program\Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
